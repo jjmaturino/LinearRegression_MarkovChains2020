@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 10 03:10:04 2020
-
 @author: Sheila
 """
 
@@ -164,6 +163,9 @@ streaks.columns = ['Team Number', 'Team Name', 'Date', 'Win Streak']
 #del streaks['Team Number']
 streaks.dropna(axis=0, subset=['Win Streak'], inplace=True)
 streaks.drop_duplicates(keep='first', inplace=True)
+streaks = streaks.sort_values(by=['Team Name', 'Date'], ascending = [True, True])
+print("New sorted streaks: ")
+print(streaks)
 indexing = []
 for i in range(len(streaks)):
     indexing.append(i)
@@ -178,32 +180,77 @@ teamStreaks = streaks['Win Streak']
 teamStreaks.to_string()
 print(teamStreaks)
 print(streaks)
-streaks.to_csv("checkwinstreaks.csv")
-# CODE I AM NOT SURE ABOUT
-yesCount = 0
+#streaks.to_csv("checkwinstreaks.csv")
+
+repeatedIndices = []
+checkPosition = 0
+# NEW CODE I AM WORKING ON
 for i in range(len(streaks)):
     number = teamNumbers[i]
-    print("Number: %d" % number)
     streak = teamStreaks[i]
-    print("Streak: %s" % streak)
     checkPosition = i + 1
-    while checkPosition < (len(streaks) - 1)  and teamNumbers[checkPosition] != number:
-        checkPosition += 1
-    if checkPosition < len(streaks) and teamStreaks[checkPosition] == streak:
-        print("yes")
-        yesCount += 1
-        print(checkPosition)
-        streaks = streaks.drop(streaks.index[checkPosition])
-        delStreak = streak
+    if checkPosition < len(streaks) and teamNumbers[checkPosition] == number:
+        if teamStreaks[checkPosition] == streak:
+            #print(checkPosition)
+            repeatedIndices.append(checkPosition)
+            #streaks.drop(streaks.index[checkPosition], inplace=True)
+    # CODE I AM NOT SURE ABOUT
 
+print("The length of streaks is: %d" % (len(streaks)))
+print(repeatedIndices)
 
-print("yesCount: %d" % yesCount)
+subtractionCounter = 0
+for i in repeatedIndices:
+    streaks.drop(streaks.index[i - subtractionCounter], inplace = True)
+    subtractionCounter += 1
 
-print("Streaks: ")
+print("updated streaks")
+print(streaks)
+
+#for i in range(len(streaks)):
+#    number = 0
+#yesCount = 0
+#for i in range(len(streaks)):
+ #   number = teamNumbers[i]
+  #  streak = teamStreaks[i]
+#    checkPosition = i + 1
+#    while checkPosition < (len(streaks) - 1) and teamNumbers[checkPosition] != number:
+#        checkPosition += 1
+#    if checkPosition < len(streaks) and teamStreaks[checkPosition] == streak:
+#        print("yes")
+#        yesCount += 1
+#        print(checkPosition)
+#        streaks = streaks.drop(streaks.index[checkPosition])#
+#
+#
+#print("yesCount: %d" % yesCount)
+#print("Streaks: ")
+
 print(streaks)
 streaks.to_csv('newWinStreaks.csv')
 print('done')
 
+index = []
+for i in range(len(streaks)):
+    index.append(i)
+streaks.index = index
+winStreaks = streaks['Win Streak']
+winStreaks.to_string()
+print(winStreaks)
+numericWinStreak = pd.Series([])
+for i in range(len(winStreaks)):
+    currentStreak = winStreaks[i]
+    if '+' in winStreaks[i]:
+        length = len(winStreaks[i])
+        numericWinStreak[i] = length
+    elif '-' in winStreaks[i]:
+        length = len(winStreaks[i])
+        numericWinStreak[i] = length * -1
+
+streaks.insert(4, 'Numeric Win Streak', numericWinStreak)
+print(streaks)
+streaks.to_csv('modifiedWinStreaks.csv')
+print('done')
 # OLD COMMENTS/NOTES
 #ws.columns = ['Streak', 'Date']
 #ws.drop_duplicates(keep='last',inplace=True)
@@ -233,19 +280,16 @@ for i in range(len(df)):
           countWins += 1
     if team2[i] == 1:
         countLoss += 1
-
 #print(countWins)
 #print(countLoss)
 #print(df[df['Team1'] == 2]) #This has 18 rows which matches countWins
 #print(df[df['Team2'] == 2]) #This has 12 rows which matches countLoss
-
 IllinoisWin = df[df['Team1'] == 1]
 IllinoisLoss = df[df['Team2'] == 1]
 IndianaWin = df[df['Team1'] == 2]
 IndianaLoss = df[df['Team2'] == 2]
 IowaWin = df[df['Team1'] == 3]
 IowaLoss = df[df['Team2'] == 3]
-
 ilGames = []
 for i in range(len(df)):
     if team1[i] == 1:
@@ -256,7 +300,4 @@ for i in range(len(df)):
 print(ilGames) #This is list is just the row numbers where 1 appears
 '''
 #Team 1 seems to always be the winner so when a Team shows up in Team2
-            # column they lost so start losing streak
-
-
-
+            # column they lost so start losing streaK
