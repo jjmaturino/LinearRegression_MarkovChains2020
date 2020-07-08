@@ -64,21 +64,21 @@ team1games = df.loc[(df['Team1'] == 1) | (df['Team2'] == 1)]
 #print(team1games)
 for i in team1games.itertuples():  
     print(i)
-    if team1games['Team1'][i] == 1:
-        if team1games['Team1'][i+1] == 1:
+    if team1[i] == 1:
+        if team1[i+1] == 1:
             NextGame1[i] == 'W'
-        elif team1games['Team2'][i+1] == 1:
+        elif team1[i+1] == 1:
             NextGame1[i] == 'L'
         else:
             NextGame1[i] == 'N'
-    elif team1games['Team2'][i] == 1:
-        if team1games['Team1'][i+1] == 1:
+    elif team2[i] == 1:
+        if team2[i+1] == 1:
             NextGame2[i] == 'W'
-        elif team1games['Team2'][i+1] == 1:
+        elif team2[i+1] == 1:
             NextGame2[i] == 'L'
         else:
             NextGame2[i] == 'N'
-    
+'''    
 team2games = []
 team2games = df.loc[(df['Team1'] == 2) | (df['Team2'] == 2)]
 #print(team2games)
@@ -321,7 +321,7 @@ for i in team13games.itertuples():
 
 df.insert(7, 'NextGame1', NextGame1)
 df.insert(10, 'NextGame2', NextGame2)
-
+'''
 '''
 #Determines which team won/lost, add to df and prints to new csv
 #Not necessary for masseyratings data, but may be for differently arranged data sets
