@@ -12,9 +12,13 @@ import csv
 
 #Import data
 #df = pd.read_csv('CollegeBaseball2018Games.csv')
-df = pd.read_csv('big10stats.csv')
-teamData = pd.read_csv('big10teams.csv')
 
+#df = pd.read_csv('big10stats.csv')
+#teamData = pd.read_csv('big10teams.csv')
+#df = pd.read_csv('NCAAdivision1stats.csv')
+#teamData = pd.read_csv('NCAAdivision1teams.csv')
+df = pd.read_csv('AEstats.csv')
+teamData = pd.read_csv('AEteams.csv')
 Result1 = pd.Series([]) 
 Result2= pd.Series([])
 WinStreak1 = pd.Series([])
@@ -45,6 +49,7 @@ df.insert(9, 'Result2', Result2)
 
 #Determines which team won/lost, add to df and prints to new csv
 #Probably not necessary for masseyratings.com data, but may be for differently arranged data sets
+dates = df['Date']
 team1 = df['Team1']
 team2 = df['Team2']
 team1wins = pd.Series([])
@@ -57,17 +62,23 @@ for i in range(len(df)):
                 team1wins[i] = "W"
             elif Result1[i] == "L":
                 team1wins[i] = "L"
+            elif Result1[i] == "T":
+                team1wins[i] = "T"
         elif team2[i] == counter:
             if Result2[i] == 'W':
                 team2wins[i] = "W"
             elif Result2[i] == "L":
                 team2wins[i] = "L"
+            elif Result2[i] == "T":
+                team2wins[i] = "T"
         counter += 1
 
 df.insert(10, "Team 1 Result", team1wins)
 df.insert(11, "Team 2 Result", team2wins)
 print(df)
-df.to_csv('big10stats_modified.csv')
+#df.to_csv('NCAAstats_modified.csv')
+#df.to_csv('big10stats_modified.csv')
+df.to_csv('AEstats_modified.csv')
 print('done')
 
 # Create a win dictionary to keep track of team win/loss streak
@@ -85,8 +96,8 @@ print(dates)
 
 
 #Takes the date you want as input, will be used to find games through this day
-lowBound = dates[0]
-print("The low bound is: %d" % lowBound)
+#lowBound = dates[0]
+#print("The low bound is: %d" % lowBound)
 upTo = int(input("Enter a date in the following format YYYYMMDD: "))
 
 
@@ -102,7 +113,6 @@ for i in range(len(df)):
     #counter += 1
     for counter in range(len(teamData)):
         if upTo >= dates[i]:
-            currentDate = dates[i]
             currentTeam = name[counter]
             if team1[i] == counter + 1:
                 if Result1[i] == 'W':
@@ -110,38 +120,68 @@ for i in range(len(df)):
                         winDictionary[currentTeam] += '+'
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
                     else:
                         winDictionary[currentTeam] = '+'
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
                 elif Result1[i] == "L":
                     if '-' in winDictionary[currentTeam]:
                         winDictionary[currentTeam] += '-'
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
                     else:
                         winDictionary[currentTeam] = '-'
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
+                elif Result1[i] == "T":
+                    if 't' in winDictionary[currentTeam]:
+                        winDicitionary[currentTeam] += 't'
+                        print(winDictionary[currentTeam])
+                        names[i] = currentTeam
+                        currentDate = dates[i]
+                    else:
+                        winDictionary[currentTeam] = 't'
+                        print(winDictionary[currentTeam])
+                        names[i] = currentTeam
+                        currentDate = dates[i]
             elif team2[i] == counter + 1:
                 if Result2[i] == 'W':
                     if '+' in winDictionary[currentTeam]:
                         winDictionary[currentTeam] += "+"
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
                     else:
                         winDictionary[currentTeam] = '+'
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
                 elif Result2[i] == "L":
                     if '-' in winDictionary[currentTeam]:
                         winDictionary[currentTeam] += "-"
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
                     else:
                         winDictionary[currentTeam] = '-'
                         print(winDictionary[currentTeam])
                         names[i] = currentTeam
+                        currentDate = dates[i]
+                elif Result2[i] == "T":
+                    if 't' in winDictionary[currentTeam]:
+                        winDictionary[currentTeam] += 't'
+                        print(winDictionary[currentTeam])
+                        names[i] = currentTeam
+                        currentDate = dates[i]
+                    else:
+                        winDictionary[currentTeam] = 't'
+                        print(winDictionary[currentTeam])
+                        names[i] = currentTeam
+                        currentDate = dates[i]
             #print("The dictionary: ")
             #print(winDictionary)
     ws = pd.DataFrame(list(winDictionary.items()))#, index=['Team Name', 'Win Streak'])
@@ -150,7 +190,9 @@ for i in range(len(df)):
     ws.insert(1, "Date", currentDate)
     #ws.insert(0, "Team Name", names)
     #ws.insert(0, "Team Name", currentTeam)
-    ws.to_csv('big10winStreaks.csv', mode = 'a', header=False)
+    #ws.to_csv('NCAAwinStreaks.csv', mode = 'a', header=False)
+    ws.to_csv('AEwinStreaks.csv', mode = 'a', header=False)
+    #ws.to_csv('big10winStreaks.csv', mode = 'a', header=False)
 
 #ws.insert(0, "Team Name", names)
 ws.columns = ['Team Name', 'Date', 'Win Streak']
@@ -158,7 +200,9 @@ print(ws)
 print('done')
 
 #Deletes duplicate win/loss entries and any entries that do not contain a streak
-streaks = pd.read_csv('big10WinStreaks.csv')
+#streaks = pd.read_csv('NCAAwinStreaks.csv')
+streaks = pd.read_csv('AEwinStreaks.csv')
+#streaks = pd.read_csv('big10winStreaks.csv')
 streaks.columns = ['Team Number', 'Team Name', 'Date', 'Win Streak']
 #del streaks['Team Number']
 streaks.dropna(axis=0, subset=['Win Streak'], inplace=True)
@@ -194,7 +238,6 @@ for i in range(len(streaks)):
             #print(checkPosition)
             repeatedIndices.append(checkPosition)
             #streaks.drop(streaks.index[checkPosition], inplace=True)
-    # CODE I AM NOT SURE ABOUT
 
 print("The length of streaks is: %d" % (len(streaks)))
 print(repeatedIndices)
@@ -227,7 +270,9 @@ print(streaks)
 #print("Streaks: ")
 
 print(streaks)
-streaks.to_csv('newWinStreaks.csv')
+streaks.to_csv('AEnewWinStreaks.csv')
+#streaks.to_csv('NCAAnewWinStreaks.csv')
+#streaks.to_csv('newWinStreaks.csv')
 print('done')
 
 index = []
@@ -246,10 +291,14 @@ for i in range(len(winStreaks)):
     elif '-' in winStreaks[i]:
         length = len(winStreaks[i])
         numericWinStreak[i] = length * -1
+    elif 't' in winStreaks[i]:
+        numericWinStreak[i] = 0
 
 streaks.insert(4, 'Numeric Win Streak', numericWinStreak)
 print(streaks)
-streaks.to_csv('modifiedWinStreaks.csv')
+#streaks.to_csv('NCAAwinStreaks - good.csv')
+streaks.to_csv('AEwinStreaks - good.csv')
+#streaks.to_csv('modifiedWinStreaks - good.csv')
 print('done')
 # OLD COMMENTS/NOTES
 #ws.columns = ['Streak', 'Date']
