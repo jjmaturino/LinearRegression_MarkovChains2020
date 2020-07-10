@@ -198,15 +198,16 @@ ws.columns = ['Team Name', 'Date', 'Win Streak']
 print(ws)
 print('done')
 
-#Sorts streak by team name and date. Deletes duplicate win/loss entries and any entries that do not contain a streak. 
+#Sorts streak by team number and then date. 
+#Deletes duplicate win/loss entries and any entries that do not contain a streak. 
+streaks = pd.read_csv('AEwinStreaks.csv')
 #streaks = pd.read_csv('big10winStreaks.csv')
 #streaks = pd.read_csv('NCAAwinStreaks.csv')
-streaks = pd.read_csv('AEwinStreaks.csv')
 streaks.columns = ['Team Number', 'Team Name', 'Date', 'Win Streak']
 #del streaks['Team Number']
 streaks.dropna(axis=0, subset=['Win Streak'], inplace=True)
 streaks.drop_duplicates(keep='first', inplace=True)
-streaks = streaks.sort_values(by=['Team Name', 'Date'], ascending = [True, True])
+streaks = streaks.sort_values(by=['Team Number', 'Date'], ascending = [True, True])
 print("New sorted streaks: ")
 print(streaks)
 
@@ -224,6 +225,10 @@ print("Team Streaks: ")
 teamStreaks = streaks['Win Streak']
 teamStreaks.to_string()
 print(teamStreaks)
+
+#Correcting the team numbers
+for i in range(len(teamNumbers)):
+    teamNumbers[i] = teamNumbers[i] + 1
 print(streaks)
 #streaks.to_csv("checkwinstreaks.csv")
 
