@@ -10,9 +10,7 @@ import pandas as pd
 import random
 import csv
 
-#Import data
-#df = pd.read_csv('CollegeBaseball2018Games.csv')
-
+#Import the inital datasets
 #df = pd.read_csv('big10stats.csv')
 #teamData = pd.read_csv('big10teams.csv')
 #df = pd.read_csv('NCAAdivision1stats.csv')
@@ -23,9 +21,7 @@ Result1 = pd.Series([])
 Result2= pd.Series([])
 WinStreak1 = pd.Series([])
 
-#Determine if Team Home or Away and Make new column for that
-
-#determine who won Game
+#Determine which team won the game
 score1 = df['Score1']   
 score2 = df['Score2']
 
@@ -81,7 +77,7 @@ print(df)
 df.to_csv('AEstats_modified.csv')
 print('done')
 
-# Create a win dictionary to keep track of team win/loss streak
+# Create a win dictionary to keep track of team win/loss streak. Uses team name as the key
 winDictionary = {}
 #teamNames = pd.Series([])
 name = teamData['TeamName']
@@ -89,26 +85,29 @@ for i in range(len(teamData)):
     #teamNames[i] = name[i]
     winDictionary[name[i]] = ""
 
+# Determine which dates need to be checked for a win streak
 dates = df['Date']
 dates = pd.to_numeric(dates)
 print("The dates are: ")
 print(dates)
 
-
 #Takes the date you want as input, will be used to find games through this day
+#Enter last date to find streaks for the entire season
+upTo = int(input("Enter a date in the following format YYYYMMDD: "))
 #lowBound = dates[0]
 #print("The low bound is: %d" % lowBound)
-upTo = int(input("Enter a date in the following format YYYYMMDD: "))
 
-
+#Prepare a new dataframe to be used for the win streaks
+ws = pd.DataFrame.from_dict(winDictionary, orient='index')
 #teamData.insert(2, 'Added Team Name', teamNames)
 #print(teamData)
-ws = pd.DataFrame.from_dict(winDictionary, orient='index')
 #ws = pd.DataFrame.from_records(winDictionary, columns=['Team', 'Streak', 'Date'])
 
 names = pd.Series([])
+
 #Determines the win/loss streaks for each team based on date
-#Prints each team to a dictionary that stores the team win/loss streak
+#Prints each team to a dictionary that stores the team win/loss streak. Entries appended to csv file
+# A win (+), a loss (-), or a tie (t) is a possible result for each game
 for i in range(len(df)):
     #counter += 1
     for counter in range(len(teamData)):
@@ -199,10 +198,10 @@ ws.columns = ['Team Name', 'Date', 'Win Streak']
 print(ws)
 print('done')
 
-#Deletes duplicate win/loss entries and any entries that do not contain a streak
+#Sorts streak by team name and date. Deletes duplicate win/loss entries and any entries that do not contain a streak. 
+#streaks = pd.read_csv('big10winStreaks.csv')
 #streaks = pd.read_csv('NCAAwinStreaks.csv')
 streaks = pd.read_csv('AEwinStreaks.csv')
-#streaks = pd.read_csv('big10winStreaks.csv')
 streaks.columns = ['Team Number', 'Team Name', 'Date', 'Win Streak']
 #del streaks['Team Number']
 streaks.dropna(axis=0, subset=['Win Streak'], inplace=True)
@@ -210,6 +209,8 @@ streaks.drop_duplicates(keep='first', inplace=True)
 streaks = streaks.sort_values(by=['Team Name', 'Date'], ascending = [True, True])
 print("New sorted streaks: ")
 print(streaks)
+
+#Reindex the dataframe (streaks) and creates series to check for consecutive, same streak values
 indexing = []
 for i in range(len(streaks)):
     indexing.append(i)
@@ -226,9 +227,9 @@ print(teamStreaks)
 print(streaks)
 #streaks.to_csv("checkwinstreaks.csv")
 
+#Check for streaks that are repeated in consequtive rows, create a list containing the index of each entry
 repeatedIndices = []
 checkPosition = 0
-# NEW CODE I AM WORKING ON
 for i in range(len(streaks)):
     number = teamNumbers[i]
     streak = teamStreaks[i]
@@ -238,43 +239,27 @@ for i in range(len(streaks)):
             #print(checkPosition)
             repeatedIndices.append(checkPosition)
             #streaks.drop(streaks.index[checkPosition], inplace=True)
-
 print("The length of streaks is: %d" % (len(streaks)))
 print(repeatedIndices)
 
+#For each entry in the list of repeated values, delete the corresponding row from the dataframe (streaks)
+#The subratction counter is used to account for changing indices when rows are delete
 subtractionCounter = 0
 for i in repeatedIndices:
     streaks.drop(streaks.index[i - subtractionCounter], inplace = True)
     subtractionCounter += 1
-
 print("updated streaks")
 print(streaks)
 
-#for i in range(len(streaks)):
-#    number = 0
-#yesCount = 0
-#for i in range(len(streaks)):
- #   number = teamNumbers[i]
-  #  streak = teamStreaks[i]
-#    checkPosition = i + 1
-#    while checkPosition < (len(streaks) - 1) and teamNumbers[checkPosition] != number:
-#        checkPosition += 1
-#    if checkPosition < len(streaks) and teamStreaks[checkPosition] == streak:
-#        print("yes")
-#        yesCount += 1
-#        print(checkPosition)
-#        streaks = streaks.drop(streaks.index[checkPosition])#
-#
-#
-#print("yesCount: %d" % yesCount)
-#print("Streaks: ")
-
-print(streaks)
+#print(streaks)
 streaks.to_csv('AEnewWinStreaks.csv')
 #streaks.to_csv('NCAAnewWinStreaks.csv')
 #streaks.to_csv('newWinStreaks.csv')
 print('done')
 
+# Reindex the dataframe (streaks) after repeated entries are deleted
+# Then, assign a numeric value to the win streak based on the length of the string
+# A losing streak is negative, a win streak is positive, and a tie is 0
 index = []
 for i in range(len(streaks)):
     index.append(i)
@@ -294,13 +279,35 @@ for i in range(len(winStreaks)):
     elif 't' in winStreaks[i]:
         numericWinStreak[i] = 0
 
+# A column for the numeric win streak is added to the dataframe (streaks) 
+# Finally, the dataframe is converted to the final csv file
 streaks.insert(4, 'Numeric Win Streak', numericWinStreak)
 print(streaks)
 #streaks.to_csv('NCAAwinStreaks - good.csv')
 streaks.to_csv('AEwinStreaks - good.csv')
 #streaks.to_csv('modifiedWinStreaks - good.csv')
 print('done')
+
 # OLD COMMENTS/NOTES
+#for i in range(len(streaks)):
+#    number = 0
+#yesCount = 0
+#for i in range(len(streaks)):
+ #   number = teamNumbers[i]
+  #  streak = teamStreaks[i]
+#    checkPosition = i + 1
+#    while checkPosition < (len(streaks) - 1) and teamNumbers[checkPosition] != number:
+#        checkPosition += 1
+#    if checkPosition < len(streaks) and teamStreaks[checkPosition] == streak:
+#        print("yes")
+#        yesCount += 1
+#        print(checkPosition)
+#        streaks = streaks.drop(streaks.index[checkPosition])#
+#
+#
+#print("yesCount: %d" % yesCount)
+#print("Streaks: ")
+
 #ws.columns = ['Streak', 'Date']
 #ws.drop_duplicates(keep='last',inplace=True)
 #ws.to_csv('newWinStreaks.csv')
