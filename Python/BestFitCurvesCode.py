@@ -1,36 +1,21 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[166]:
-
-
 import pandas as pd
-
-# Imports plotting functionality.
 import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 from matplotlib import style
 import seaborn as sns
 from statistics import mean
-
 import numpy as np
 import scipy.stats as stats
 from scipy.optimize import curve_fit 
-
 from sklearn.linear_model import LinearRegression
-
-
-# In[155]:
-
 
 # Import data
 #df = pd.read_csv('Big10Games.csv')
 df1 = pd.read_csv('modifiedWinStreaks - good.csv')
 df = pd.read_csv('finalCSV.csv')
-
-
-# In[156]:
-
 
 #Function for calculating probability
 def computeProb (counterWon, counterGame, streak):
@@ -39,10 +24,6 @@ def computeProb (counterWon, counterGame, streak):
     else: 
         prob = 1/2
     return prob
-
-
-# In[157]:
-
 
 streaks = df['Numeric Win Streak']
 nextResult = df['Next Game']
@@ -58,10 +39,6 @@ for i in range(len(streaks)):
 
 print("The maximum win streak is: %d" % maxWinStreak)
 print("The maximum loss streak is %d" % maxLossStreak)
-
-
-# In[158]:
-
 
 probabilities = pd.Series([])
 winStreak = pd.Series([])
@@ -85,21 +62,12 @@ for i in range(maxLossStreak, maxWinStreak + 1):
     winStreak[probPositionCounter] = i
     probPositionCounter += 1
     
-
-
-# In[159]:
-
-
 #Creates the table with statistics per streak
 dfp = pd.DataFrame ({'Win Streak': winStreak,
                      'Probability': probabilities})
 
 print(dfp)
 dfp.to_csv('big10Probability.csv')
-
-
-# In[160]:
-
 
 #Need the following to get rid of endpoints
 dfp.drop(dfp.head(1).index,inplace=True)
@@ -109,26 +77,21 @@ dfp.drop(dfp.tail(1).index,inplace=True)
 prob = dfp['Probability'] 
 winStreak = dfp['Win Streak']
 
-plt.plot(winStreak, prob)
-plt.title('Win Streaks Greater than vs Probability')
-plt.ylabel('Probability')
-plt.xlabel('Win Streaks')
-plt.show()
+#Plot line graph
+#plt.plot(winStreak, prob)
+#plt.title('Win Streaks Greater than vs Probability')
+#plt.ylabel('Probability')
+#plt.xlabel('Win Streaks')
+#plt.show()
 
+#Plot bar graph
+#plt.bar(winStreak, prob)
+#plt.title('Win Streaks Greater than  vs Probability')
+#plt.ylabel('Probability')
+#plt.xlabel('Win Streaks')
+#plt.show()
 
-# In[161]:
-
-
-plt.bar(winStreak, prob)
-plt.title('Win Streaks Greater than  vs Probability')
-plt.ylabel('Probability')
-plt.xlabel('Win Streaks')
-plt.show()
-
-
-# In[162]:
-
-
+#Plot scatter plot
 plt.scatter(winStreak, prob, marker='o')
 plt.title('Win Streaks vs Probability')
 plt.ylabel('Probability')
@@ -138,12 +101,7 @@ plt.show()
 #param, param_cov = curve_fit(test, winStreak, prob) 
 #print(c)
 
-
-# In[163]:
-
-
-#Predictions with Best Fit LINE - taken from the following article: 
-#https://pythonprogramming.net/how-to-program-best-fit-line-machine-learning-tutorial/
+#Predictions with Best Fit LINE
 
 #Create variable array for graphing
 xs = np.array(winStreak, dtype=np.float64)
@@ -151,8 +109,7 @@ ys = np.array(prob, dtype=np.float64)
 
 #Function to calculate the slope and y-intercept of best fit line
 def best_fit_slope_and_intercept(xs,ys):
-    m = (((mean(xs)*mean(ys)) - mean(xs*ys)) /
-         ((mean(xs)*mean(xs)) - mean(xs*xs)))
+    m = (((mean(xs)*mean(ys)) - mean(xs*ys)) / ((mean(xs)*mean(xs)) - mean(xs*xs)))
     b = mean(ys) - m*mean(xs)
     return m, b
 
@@ -179,9 +136,6 @@ plt.show()
 predict_x = int(input("Enter the number for games in Win Streak: "))
 predict_p = m*(predict_x) + b
 print(predict_p)
-
-
-# In[172]:
 
 
 #Best Fit Curve - Parabola (Quadratic : f = a*x^2 + b*x + c)
@@ -221,14 +175,13 @@ coeff = get_coeff(A,ys)
 
 #Put coefficients into own variables
 a = coeff[0]
-b = coeff[1]
+b1 = coeff[1]   #Used b1 since b was used above
 c = coeff[2]
 
-parabola_line = [a*(x*x)+(b*x)+c for x in xs]
-parabola_line = []
-for x in xs:
-    parabola_line.append((a*(x*x)+(b*x)+c))
+#Create quadratic curve to be plotted
+parabola_line = [a*(x*x)+(b1*x)+c for x in xs]
 
+#Plot scatter plot of data and best fit quadratic curve
 style.use('ggplot')
 plt.scatter(xs,ys,color='#003F72')
 plt.plot(xs, parabola_line)
@@ -239,11 +192,8 @@ plt.show()
 
 #Predicting the probability of winning next game given a certain win streak.
 predict_x2 = int(input("Enter the number for games in Win Streak: "))
-predict_p2 = a*(predict_x2*predict_x2) + (b*predict_x2) + c
+predict_p2 = a*(predict_x2*predict_x2) + (b1*predict_x2) + c
 print(predict_p2)
-
-
-# In[179]:
 
 
 #Best Fit Curve - Cubic (f = ax^3 + bx^2 + cx + d)
@@ -265,21 +215,16 @@ A2 = get_cubic_matrixA(xs)
 cubic_coeffs = get_coeff(A2,ys)
 print(cubic_coeffs)
 
-#Put coefficients into own variables (used a1,b1,c1 because a,b,c are used above)
+#Put coefficients into own variables (used a1,b2,c1 because a,b1,c are used above)
 a1 = cubic_coeffs[0]
-b1 = cubic_coeffs[1]
+b2 = cubic_coeffs[1]   
 c1 = cubic_coeffs[2]
 d = cubic_coeffs[3]
-print(a1)
-print(b1)
-print(c1)
-print(d)
 
-#cubic_line = [a*(x*x*x)+(b*(x*x))+(c*x)+d for x in xs]
-cubic_line = []
-for x in xs:
-    cubic_line.append((a*(x*x*x)+(b*(x*x))+(c*x)+d))
+#Create cubic curve to be plotted
+cubic_line = [a1*(x*x*x)+(b2*(x*x))+(c1*x)+d for x in xs]
 
+#PLot scatter plot of data and best fit cubic curve
 style.use('ggplot')
 plt.scatter(xs,ys,color='#003F72')
 plt.plot(xs, cubic_line)
@@ -290,12 +235,6 @@ plt.show()
 
 #Predicting the probability of winning next game given a certain win streak.
 predict_x3 = int(input("Enter the number for games in Win Streak: "))
-predict_p3 = (a1*(predict_x3*predict_x3*predict_x3)) + (b1*(predict_x3*predict_x3)) + (c1*predict_x3) + d
+predict_p3 = (a1*(predict_x3*predict_x3*predict_x3)) + (b2*(predict_x3*predict_x3)) + (c1*predict_x3) + d
 print(predict_p3)
-
-
-# In[ ]:
-
-
-
 
